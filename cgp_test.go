@@ -6,24 +6,14 @@ func TestReverseInputs(t *testing.T) {
 	// Simple test that evolves a function that reverses three inputs
 
 	// First, we set up our parameters:
-
-	// The population size. One parent plus four children.
-	popSize := 5
-
-	// The maximum number of functions in the genome
-	maxGenes := 10
-
-	// The mutation rate
-	mutationRate := 0.01
-
-	// The number of input values
-	numInputs := 3
-
-	// The number of output values
-	numOutputs := 3
-
-	// The maximum arity of the functions in the functionList
-	maxArity := 2
+	const (
+		popSize      = 5    // The population size. One parent plus four children.
+		maxGenes     = 10   // The maximum number of functions in the genome
+		mutationRate = 0.01 // The mutation rate
+		numInputs    = 3    // The number of input values
+		numOutputs   = 3    // The number of output values
+		maxArity     = 2    // The maximum arity of the functions in the functionList
+	)
 
 	// We pass in a list of functions that can be used in the genome. Since
 	// this is a toy example, we use two no-op functions that don't do
