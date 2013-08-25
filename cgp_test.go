@@ -62,12 +62,12 @@ func TestReverseInputs(t *testing.T) {
 	}
 
 	// Initialize CGP
-	cgp := CGP.New(popSize, maxGenes, mutationRate, numInputs, numOutputs, maxArity, functionList, randomConstant, evaluator)
+	gp := New(popSize, maxGenes, mutationRate, numInputs, numOutputs, maxArity, functionList, randomConstant, evaluator)
 
 	// Population[0] is the parent, which is the most fit individual. We
 	// loop until we've found a perfect solution (fitness 0)
-	for cgp.Population[0].Fitness > 0 {
-		cgp.RunGeneration()
+	for gp.Population[0].Fitness > 0 {
+		gp.RunGeneration()
 	}
 
 	t.Log("CGP successfully evolved input reversal")
