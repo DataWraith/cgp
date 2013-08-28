@@ -18,6 +18,22 @@ type CGP struct {
 }
 
 func New(popSize uint, maxGenes uint, mutationRate float64, numInputs uint, numOutputs uint, maxArity uint, functionList []CGPFunction, randomConstant RndConstFunction, evaluator EvalFunction) *CGP {
+
+	if popSize < 2 {
+		panic("Population size must be at least 2.")
+	}
+
+	if numOutputs == 0 {
+		panic("At least one output is necessary.")
+	}
+
+	if mutationRate < 0 || mutationRate > 1 {
+		panic("Mutation rate must be between 0 and 1.")
+	}
+
+	if len(functionList) == 0 {
+		panic("At least one function must be provided.")
+	}
 	result := &CGP{
 		PopSize:      popSize,
 		MaxGenes:     maxGenes,
