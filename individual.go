@@ -20,7 +20,7 @@ type Individual struct {
 func NewIndividual(cgp *CGP) (ind Individual) {
 	ind.Options = cgp
 	ind.Fitness = math.Inf(1)
-	ind.Genes = make([]Gene, cgp.MaxGenes)
+	ind.Genes = make([]Gene, cgp.NumGenes)
 
 	for i := range ind.Genes {
 		ind.Genes[i].Function = rand.Intn(len(cgp.FunctionList))

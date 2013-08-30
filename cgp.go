@@ -10,7 +10,7 @@ type RndConstFunction func() float64
 
 type CGP struct {
 	PopSize      int
-	MaxGenes     int
+	NumGenes     int
 	MutationRate float64
 	NumInputs    int
 	NumOutputs   int
@@ -21,13 +21,13 @@ type CGP struct {
 	Population   []Individual
 }
 
-func New(popSize int, maxGenes int, mutationRate float64, numInputs int, numOutputs int, maxArity int, functionList []CGPFunction, randomConstant RndConstFunction, evaluator EvalFunction) *CGP {
+func New(popSize int, numGenes int, mutationRate float64, numInputs int, numOutputs int, maxArity int, functionList []CGPFunction, randomConstant RndConstFunction, evaluator EvalFunction) *CGP {
 
 	if popSize < 2 {
 		panic("Population size must be at least 2.")
 	}
-	if maxGenes < 0 {
-		panic("maxGenes can't be negative")
+	if numGenes < 0 {
+		panic("numGenes can't be negative")
 	}
 	if mutationRate < 0 || mutationRate > 1 {
 		panic("Mutation rate must be between 0 and 1.")
@@ -47,7 +47,7 @@ func New(popSize int, maxGenes int, mutationRate float64, numInputs int, numOutp
 
 	result := &CGP{
 		PopSize:      popSize,
-		MaxGenes:     maxGenes,
+		NumGenes:     numGenes,
 		MutationRate: mutationRate,
 		NumInputs:    numInputs,
 		NumOutputs:   numOutputs,
