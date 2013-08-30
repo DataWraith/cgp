@@ -9,32 +9,38 @@ type EvalFunction func(Individual) float64
 type RndConstFunction func() float64
 
 type CGP struct {
-	PopSize      uint
-	MaxGenes     uint
+	PopSize      int
+	MaxGenes     int
 	MutationRate float64
-	NumInputs    uint
-	NumOutputs   uint
-	MaxArity     uint
+	NumInputs    int
+	NumOutputs   int
+	MaxArity     int
 	FunctionList []CGPFunction
 	RandConst    RndConstFunction
 	Evaluator    EvalFunction
 	Population   []Individual
 }
 
-func New(popSize uint, maxGenes uint, mutationRate float64, numInputs uint, numOutputs uint, maxArity uint, functionList []CGPFunction, randomConstant RndConstFunction, evaluator EvalFunction) *CGP {
+func New(popSize int, maxGenes int, mutationRate float64, numInputs int, numOutputs int, maxArity int, functionList []CGPFunction, randomConstant RndConstFunction, evaluator EvalFunction) *CGP {
 
 	if popSize < 2 {
 		panic("Population size must be at least 2.")
 	}
-
-	if numOutputs == 0 {
-		panic("At least one output is necessary.")
+	if maxGenes < 0 {
+		panic("maxGenes can't be negative")
 	}
-
 	if mutationRate < 0 || mutationRate > 1 {
 		panic("Mutation rate must be between 0 and 1.")
 	}
-
+	if numInputs < 0 {
+		panic("numInputs can't be negative")
+	}
+	if numOutputs < 1 {
+		panic("At least one output is necessary.")
+	}
+	if maxArity < 0 {
+		panic("maxArity can't be negative")
+	}
 	if len(functionList) == 0 {
 		panic("At least one function must be provided.")
 	}
@@ -60,20 +66,20 @@ func New(popSize uint, maxGenes uint, mutationRate float64, numInputs uint, numO
 func (cgp *CGP) RunGeneration() {
 	// Create offspring
 	cgp.Population = cgp.Population[0:1]
-	for i := uint(1); i < cgp.PopSize; i++ {
+	for i := 1; i < cgp.PopSize; i++ {
 		cgp.Population = append(cgp.Population, cgp.Population[0].Mutate())
 	}
 
 	// Evaluate offspring
 	// TODO: Parallelize this
-	for i := 1; uint(i) < cgp.PopSize; i++ {
+	for i := 1; i < cgp.PopSize; i++ {
 		cgp.Population[i].Fitness = cgp.Evaluator(cgp.Population[i])
 	}
 
 	// Replace parent with best offspring
 	bestFitness := math.Inf(1)
-	bestIndividual := uint(0)
-	for i := uint(1); i < cgp.PopSize; i++ {
+	bestIndividual := 0
+	for i := 1; i < cgp.PopSize; i++ {
 		if cgp.Population[i].Fitness < bestFitness {
 			bestFitness = cgp.Population[i].Fitness
 			bestIndividual = i

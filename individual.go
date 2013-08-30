@@ -27,7 +27,7 @@ func NewIndividual(cgp *CGP) (ind Individual) {
 		ind.Genes[i].Constant = cgp.RandConst()
 		ind.Genes[i].Connections = make([]int, cgp.MaxArity)
 		for j := range ind.Genes[i].Connections {
-			ind.Genes[i].Connections[j] = rand.Intn(int(cgp.NumInputs) + i)
+			ind.Genes[i].Connections[j] = rand.Intn(cgp.NumInputs + i)
 		}
 	}
 
