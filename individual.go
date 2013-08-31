@@ -11,7 +11,20 @@ type Gene struct {
 	Connections []int
 }
 
-func (g *Gene) Mutate(options *CGP) {
+func (g *Gene) Mutate(position int, options *CGP) {
+	toMutate := rand.Intn(2 + len(g.Connections))
+
+	if toMutate == 0 {
+		g.Function = rand.Intn(len(options.FunctionList))
+		return
+	}
+
+	if toMutate == 1 {
+		g.Constant = options.RandConst()
+		return
+	}
+
+	g.Connections[toMutate-2] = rand.Intn(position)
 }
 
 type Individual struct {
@@ -61,7 +74,7 @@ func (ind Individual) Mutate() (mutant Individual) {
 		toMutate := rand.Intn(mutant.Options.NumGenes + mutant.Options.NumOutputs)
 
 		if toMutate < mutant.Options.NumGenes {
-			mutant.Genes[toMutate].Mutate(mutant.Options)
+			mutant.Genes[toMutate].Mutate(toMutate+mutant.Options.NumInputs, mutant.Options)
 		} else {
 			mutant.Outputs[toMutate-mutant.Options.NumGenes] =
 				rand.Intn(mutant.Options.NumInputs + mutant.Options.NumGenes)
