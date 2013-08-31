@@ -32,6 +32,8 @@ type Individual struct {
 	Outputs []int
 	Options *CGP
 	Fitness float64
+
+	activeGenes []bool
 }
 
 func NewIndividual(cgp *CGP) (ind Individual) {
@@ -86,6 +88,69 @@ func (ind Individual) Mutate() (mutant Individual) {
 	return
 }
 
-func (ind Individual) Run(input []float64) (output []float64) {
-	return []float64{0, 0, 0}
+func (ind *Individual) markActive(gene int) {
+	if ind.activeGenes[gene] {
+		return
+	}
+
+	ind.activeGenes[gene] = true
+
+	for _, conn := range ind.Genes[gene-ind.Options.NumInputs].Connections {
+		ind.markActive(conn)
+	}
+}
+
+func (ind *Individual) determineActiveGenes() {
+	// Check if we already did this
+	if len(ind.activeGenes) != 0 {
+		return
+	}
+
+	ind.activeGenes = make([]bool,
+		ind.Options.NumInputs+ind.Options.NumGenes+ind.Options.NumOutputs)
+
+	// Mark inputs as Active
+	for i := 0; i < ind.Options.NumInputs; i++ {
+		ind.activeGenes[i] = true
+	}
+
+	// Recursively mark active genes beginning from the outputs
+	for _, conn := range ind.Outputs {
+		ind.markActive(conn)
+	}
+}
+
+func (ind Individual) Run(input []float64) []float64 {
+	if len(input) != ind.Options.NumInputs {
+		panic("Individual.Run() was called with the wrong number of inputs")
+	}
+
+	ind.determineActiveGenes()
+
+	nodeOutput := make([]float64, ind.Options.NumInputs+ind.Options.NumGenes)
+	for i := 0; i < ind.Options.NumInputs; i++ {
+		nodeOutput[i] = input[i]
+	}
+
+	for i := 0; i < ind.Options.NumGenes; i++ {
+		if !ind.activeGenes[i+ind.Options.NumInputs] {
+			continue
+		}
+
+		functionInput := make([]float64, 1+ind.Options.MaxArity)
+		functionInput[0] = ind.Genes[i].Constant
+		for j, c := range ind.Genes[i].Connections {
+			functionInput[j+1] = nodeOutput[c]
+		}
+
+		functionOutput := ind.Options.FunctionList[ind.Genes[i].Function](functionInput)
+		nodeOutput[i+ind.Options.NumInputs] = functionOutput
+	}
+
+	output := make([]float64, 0, ind.Options.NumOutputs)
+	for _, o := range ind.Outputs {
+		output = append(output, nodeOutput[o])
+	}
+
+	return output
 }
