@@ -11,7 +11,7 @@ type Gene struct {
 	Connections []int
 }
 
-func (g *Gene) Mutate(position int, options *CGP) {
+func (g *Gene) Mutate(position int, options *CGPOptions) {
 	toMutate := rand.Intn(2 + len(g.Connections))
 
 	if toMutate == 0 {
@@ -30,29 +30,29 @@ func (g *Gene) Mutate(position int, options *CGP) {
 type Individual struct {
 	Genes   []Gene
 	Outputs []int
-	Options *CGP
+	Options *CGPOptions
 	Fitness float64
 
 	activeGenes []bool
 }
 
-func NewIndividual(cgp *CGP) (ind Individual) {
-	ind.Options = cgp
+func NewIndividual(options *CGPOptions) (ind Individual) {
+	ind.Options = options
 	ind.Fitness = math.Inf(1)
-	ind.Genes = make([]Gene, cgp.NumGenes)
-	ind.Outputs = make([]int, cgp.NumOutputs)
+	ind.Genes = make([]Gene, options.NumGenes)
+	ind.Outputs = make([]int, options.NumOutputs)
 
 	for i := range ind.Genes {
-		ind.Genes[i].Function = rand.Intn(len(cgp.FunctionList))
-		ind.Genes[i].Constant = cgp.RandConst()
-		ind.Genes[i].Connections = make([]int, cgp.MaxArity)
+		ind.Genes[i].Function = rand.Intn(len(options.FunctionList))
+		ind.Genes[i].Constant = options.RandConst()
+		ind.Genes[i].Connections = make([]int, options.MaxArity)
 		for j := range ind.Genes[i].Connections {
-			ind.Genes[i].Connections[j] = rand.Intn(cgp.NumInputs + i)
+			ind.Genes[i].Connections[j] = rand.Intn(options.NumInputs + i)
 		}
 	}
 
 	for i := range ind.Outputs {
-		ind.Outputs[i] = rand.Intn(cgp.NumInputs + cgp.NumGenes)
+		ind.Outputs[i] = rand.Intn(options.NumInputs + options.NumGenes)
 	}
 
 	return

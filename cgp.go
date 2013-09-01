@@ -9,7 +9,7 @@ type CGPFunction func([]float64) float64
 type EvalFunction func(Individual) float64
 type RndConstFunction func() float64
 
-type CGP struct {
+type CGPOptions struct {
 	PopSize      int
 	NumGenes     int
 	MutationRate float64
@@ -19,55 +19,57 @@ type CGP struct {
 	FunctionList []CGPFunction
 	RandConst    RndConstFunction
 	Evaluator    EvalFunction
-	Population   []Individual
 }
 
-func New(popSize int, numGenes int, mutationRate float64, numInputs int, numOutputs int, maxArity int, functionList []CGPFunction, randomConstant RndConstFunction, evaluator EvalFunction) *CGP {
+type cgp struct {
+	Options    CGPOptions
+	Population []Individual
+}
 
-	if popSize < 2 {
+func New(options CGPOptions) *cgp {
+
+	if options.PopSize < 2 {
 		panic("Population size must be at least 2.")
 	}
-	if numGenes < 0 {
-		panic("numGenes can't be negative")
+	if options.NumGenes < 0 {
+		panic("NumGenes can't be negative.")
 	}
-	if mutationRate < 0 || mutationRate > 1 {
+	if options.MutationRate < 0 || options.MutationRate > 1 {
 		panic("Mutation rate must be between 0 and 1.")
 	}
-	if numInputs < 0 {
-		panic("numInputs can't be negative")
+	if options.NumInputs < 0 {
+		panic("NumInputs can't be negative.")
 	}
-	if numOutputs < 1 {
+	if options.NumOutputs < 1 {
 		panic("At least one output is necessary.")
 	}
-	if maxArity < 0 {
-		panic("maxArity can't be negative")
+	if options.MaxArity < 0 {
+		panic("MaxArity can't be negative.")
 	}
-	if len(functionList) == 0 {
+	if len(options.FunctionList) == 0 {
 		panic("At least one function must be provided.")
 	}
-
-	result := &CGP{
-		PopSize:      popSize,
-		NumGenes:     numGenes,
-		MutationRate: mutationRate,
-		NumInputs:    numInputs,
-		NumOutputs:   numOutputs,
-		MaxArity:     maxArity,
-		FunctionList: functionList,
-		RandConst:    randomConstant,
-		Evaluator:    evaluator,
-		Population:   make([]Individual, 1, popSize),
+	if options.RandConst == nil {
+		panic("You must supply a RandConst function.")
+	}
+	if options.Evaluator == nil {
+		panic("You must supply an Evaluator function.")
 	}
 
-	result.Population[0] = NewIndividual(result)
+	result := &cgp{
+		Options:    options,
+		Population: make([]Individual, 1, options.PopSize),
+	}
+
+	result.Population[0] = NewIndividual(&options)
 
 	return result
 }
 
-func (cgp *CGP) RunGeneration() {
+func (cgp *cgp) RunGeneration() {
 	// Create offspring
 	cgp.Population = cgp.Population[0:1]
-	for i := 1; i < cgp.PopSize; i++ {
+	for i := 1; i < cgp.Options.PopSize; i++ {
 		cgp.Population = append(cgp.Population, cgp.Population[0].Mutate())
 	}
 
@@ -85,7 +87,7 @@ func (cgp *CGP) RunGeneration() {
 	// Replace parent with best offspring
 	bestFitness := math.Inf(1)
 	bestIndividual := 0
-	for i := 1; i < cgp.PopSize; i++ {
+	for i := 1; i < cgp.Options.PopSize; i++ {
 		if cgp.Population[i].Fitness < bestFitness {
 			bestFitness = cgp.Population[i].Fitness
 			bestIndividual = i
