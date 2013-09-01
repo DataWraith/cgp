@@ -1,6 +1,9 @@
 package cgp
 
 import (
+	"crypto/md5"
+	"encoding/binary"
+	"encoding/hex"
 	"math"
 )
 
@@ -33,6 +36,7 @@ type Individual struct {
 	Fitness float64
 
 	activeGenes []bool
+	cacheID     string
 }
 
 func NewIndividual(options *CGPOptions) (ind Individual) {
@@ -117,6 +121,36 @@ func (ind *Individual) determineActiveGenes() {
 	for _, conn := range ind.Outputs {
 		ind.markActive(conn)
 	}
+}
+
+// CacheID returns the functional ID of ind. Two individuals that have the same
+// CacheID are guaranteed to compute the same function. Note that individuals
+// that differ in their inactive genes but are identical in their active genes
+// will have the same CacheID.
+func (ind *Individual) CacheID() string {
+	if len(ind.cacheID) != 0 {
+		return ind.cacheID
+	}
+
+	ind.determineActiveGenes()
+
+	h := md5.New()
+	for i, g := range ind.Genes {
+		if ind.activeGenes[i+ind.Options.NumInputs] {
+			binary.Write(h, binary.LittleEndian, g.Function)
+			binary.Write(h, binary.LittleEndian, g.Constant)
+			for _, c := range g.Connections {
+				binary.Write(h, binary.LittleEndian, c)
+			}
+		}
+	}
+	for _, o := range ind.Outputs {
+		binary.Write(h, binary.LittleEndian, o)
+	}
+
+	ind.cacheID = hex.EncodeToString(h.Sum(nil))
+
+	return ind.cacheID
 }
 
 func (ind Individual) Run(input []float64) []float64 {

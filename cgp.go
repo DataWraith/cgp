@@ -83,11 +83,18 @@ func (cgp *cgp) RunGeneration() {
 	// Evaluate offspring (in parallel)
 	var wg sync.WaitGroup
 	for i := 1; i < cgp.Options.PopSize; i++ {
-		wg.Add(1)
-		go func(i int) {
-			defer wg.Done()
-			cgp.Population[i].Fitness = cgp.Options.Evaluator(cgp.Population[i])
-		}(i)
+		// If the individual computes the same function as the parent, skip
+		// evaluation and just use the parent's fitness
+		if cgp.Population[i].CacheID() == cgp.Population[0].CacheID() {
+			cgp.Population[i].Fitness = cgp.Population[0].Fitness
+		} else {
+			// Individual is different from parent, compute fitness
+			wg.Add(1)
+			go func(i int) {
+				defer wg.Done()
+				cgp.Population[i].Fitness = cgp.Options.Evaluator(cgp.Population[i])
+			}(i)
+		}
 	}
 	wg.Wait()
 
