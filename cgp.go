@@ -2,6 +2,7 @@ package cgp
 
 import (
 	"math"
+	"sync"
 )
 
 type CGPFunction func([]float64) float64
@@ -70,11 +71,16 @@ func (cgp *CGP) RunGeneration() {
 		cgp.Population = append(cgp.Population, cgp.Population[0].Mutate())
 	}
 
-	// Evaluate offspring
-	// TODO: Parallelize this
-	for i := 1; i < cgp.PopSize; i++ {
-		cgp.Population[i].Fitness = cgp.Evaluator(cgp.Population[i])
+	// Evaluate offspring (in parallel)
+	var wg sync.WaitGroup
+	for i := 1; i < cgp.Options.PopSize; i++ {
+		wg.Add(1)
+		go func(i int) {
+			defer wg.Done()
+			cgp.Population[i].Fitness = cgp.Options.Evaluator(cgp.Population[i])
+		}(i)
 	}
+	wg.Wait()
 
 	// Replace parent with best offspring
 	bestFitness := math.Inf(1)
