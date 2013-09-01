@@ -2,7 +2,9 @@ package cgp
 
 import (
 	"math"
+	"math/rand"
 	"sync"
+	"time"
 )
 
 type CGPFunction func([]float64) float64
@@ -19,6 +21,7 @@ type CGPOptions struct {
 	FunctionList []CGPFunction
 	RandConst    RndConstFunction
 	Evaluator    EvalFunction
+	Rand         *rand.Rand
 }
 
 type cgp struct {
@@ -54,6 +57,10 @@ func New(options CGPOptions) *cgp {
 	}
 	if options.Evaluator == nil {
 		panic("You must supply an Evaluator function.")
+	}
+
+	if options.Rand == nil {
+		options.Rand = rand.New(rand.NewSource(time.Now().UnixNano()))
 	}
 
 	result := &cgp{

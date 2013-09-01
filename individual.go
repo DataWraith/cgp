@@ -2,7 +2,6 @@ package cgp
 
 import (
 	"math"
-	"math/rand"
 )
 
 type Gene struct {
@@ -12,10 +11,10 @@ type Gene struct {
 }
 
 func (g *Gene) Mutate(position int, options *CGPOptions) {
-	toMutate := rand.Intn(2 + len(g.Connections))
+	toMutate := options.Rand.Intn(2 + len(g.Connections))
 
 	if toMutate == 0 {
-		g.Function = rand.Intn(len(options.FunctionList))
+		g.Function = options.Rand.Intn(len(options.FunctionList))
 		return
 	}
 
@@ -24,7 +23,7 @@ func (g *Gene) Mutate(position int, options *CGPOptions) {
 		return
 	}
 
-	g.Connections[toMutate-2] = rand.Intn(position)
+	g.Connections[toMutate-2] = options.Rand.Intn(position)
 }
 
 type Individual struct {
@@ -43,16 +42,16 @@ func NewIndividual(options *CGPOptions) (ind Individual) {
 	ind.Outputs = make([]int, options.NumOutputs)
 
 	for i := range ind.Genes {
-		ind.Genes[i].Function = rand.Intn(len(options.FunctionList))
+		ind.Genes[i].Function = options.Rand.Intn(len(options.FunctionList))
 		ind.Genes[i].Constant = options.RandConst()
 		ind.Genes[i].Connections = make([]int, options.MaxArity)
 		for j := range ind.Genes[i].Connections {
-			ind.Genes[i].Connections[j] = rand.Intn(options.NumInputs + i)
+			ind.Genes[i].Connections[j] = options.Rand.Intn(options.NumInputs + i)
 		}
 	}
 
 	for i := range ind.Outputs {
-		ind.Outputs[i] = rand.Intn(options.NumInputs + options.NumGenes)
+		ind.Outputs[i] = options.Rand.Intn(options.NumInputs + options.NumGenes)
 	}
 
 	return
@@ -73,13 +72,13 @@ func (ind Individual) Mutate() (mutant Individual) {
 	}
 
 	for numMutations > 0 {
-		toMutate := rand.Intn(mutant.Options.NumGenes + mutant.Options.NumOutputs)
+		toMutate := ind.Options.Rand.Intn(mutant.Options.NumGenes + mutant.Options.NumOutputs)
 
 		if toMutate < mutant.Options.NumGenes {
 			mutant.Genes[toMutate].Mutate(toMutate+mutant.Options.NumInputs, mutant.Options)
 		} else {
 			mutant.Outputs[toMutate-mutant.Options.NumGenes] =
-				rand.Intn(mutant.Options.NumInputs + mutant.Options.NumGenes)
+				ind.Options.Rand.Intn(mutant.Options.NumInputs + mutant.Options.NumGenes)
 		}
 
 		numMutations--
