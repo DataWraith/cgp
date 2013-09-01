@@ -9,7 +9,7 @@ import (
 
 type CGPFunction func([]float64) float64
 type EvalFunction func(Individual) float64
-type RndConstFunction func() float64
+type RndConstFunction func(rand *rand.Rand) float64
 
 type CGPOptions struct {
 	PopSize      int

@@ -65,7 +65,7 @@ func TestReverseInputs(t *testing.T) {
 	// constant for a function to use. For example, if you are evolving
 	// images, it might return an integer value between 0.0 and 255.0 to use
 	// as RGB value.
-	options.RandConst = func() float64 {
+	options.RandConst = func(rand *rand.Rand) float64 {
 		return 0.0
 	}
 

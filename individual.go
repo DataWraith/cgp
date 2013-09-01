@@ -22,7 +22,7 @@ func (g *Gene) Mutate(position int, options *CGPOptions) {
 	}
 
 	if toMutate == 1 {
-		g.Constant = options.RandConst()
+		g.Constant = options.RandConst(options.Rand)
 		return
 	}
 
@@ -47,7 +47,7 @@ func NewIndividual(options *CGPOptions) (ind Individual) {
 
 	for i := range ind.Genes {
 		ind.Genes[i].Function = options.Rand.Intn(len(options.FunctionList))
-		ind.Genes[i].Constant = options.RandConst()
+		ind.Genes[i].Constant = options.RandConst(options.Rand)
 		ind.Genes[i].Connections = make([]int, options.MaxArity)
 		for j := range ind.Genes[i].Connections {
 			ind.Genes[i].Connections[j] = options.Rand.Intn(options.NumInputs + i)
