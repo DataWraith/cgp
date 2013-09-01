@@ -25,8 +25,9 @@ type CGPOptions struct {
 }
 
 type cgp struct {
-	Options    CGPOptions
-	Population []Individual
+	Options        CGPOptions
+	Population     []Individual
+	NumEvaluations int
 }
 
 func New(options CGPOptions) *cgp {
@@ -64,8 +65,9 @@ func New(options CGPOptions) *cgp {
 	}
 
 	result := &cgp{
-		Options:    options,
-		Population: make([]Individual, 1, options.PopSize),
+		Options:        options,
+		Population:     make([]Individual, 1, options.PopSize),
+		NumEvaluations: 0,
 	}
 
 	result.Population[0] = NewIndividual(&options)
@@ -90,6 +92,7 @@ func (cgp *cgp) RunGeneration() {
 		} else {
 			// Individual is different from parent, compute fitness
 			wg.Add(1)
+			cgp.NumEvaluations += 1
 			go func(i int) {
 				defer wg.Done()
 				cgp.Population[i].Fitness = cgp.Options.Evaluator(cgp.Population[i])
