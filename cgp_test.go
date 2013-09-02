@@ -6,12 +6,7 @@ import (
 	"math/rand"
 	"runtime"
 	"testing"
-	"time"
 )
-
-func init() {
-	rand.Seed(time.Now().UnixNano())
-}
 
 func TestReverseInputs(t *testing.T) {
 	// Simple test that evolves a function that reverses three inputs
