@@ -1,7 +1,8 @@
-package cgp
+package cgp_test
 
 import (
 	"fmt"
+	"github.com/DataWraith/cgp"
 	"math"
 	"math/rand"
 	"runtime"
@@ -12,7 +13,7 @@ func TestReverseInputs(t *testing.T) {
 	// Simple test that evolves a function that reverses three inputs
 
 	// First, we set up our parameters:
-	options := CGPOptions{
+	options := cgp.CGPOptions{
 		PopSize:      5,    // The population size. One parent plus four children.
 		NumGenes:     10,   // The maximum number of functions in the genome
 		MutationRate: 0.01, // The mutation rate
@@ -28,7 +29,7 @@ func TestReverseInputs(t *testing.T) {
 	// The functions take an array of float64 values for input. The first
 	// value is the constant that evolved for the function, the others come
 	// from the maxArity inputs to the function.
-	options.FunctionList = []CGPFunction{
+	options.FunctionList = []cgp.CGPFunction{
 		// pass through input A
 		func(input []float64) float64 {
 			return input[1]
@@ -43,7 +44,7 @@ func TestReverseInputs(t *testing.T) {
 	// The evaluator punishes every mistake with +1 fitness (0 is perfect
 	// fitness). We are looking for a function that reverses the three
 	// inputs 1, 2, 3 into the three outputs 3, 2, 1
-	options.Evaluator = func(ind Individual) float64 {
+	options.Evaluator = func(ind cgp.Individual) float64 {
 		fitness := 0.0
 		outputs := ind.Run([]float64{1, 2, 3})
 		if outputs[0] != 3 {
@@ -68,7 +69,7 @@ func TestReverseInputs(t *testing.T) {
 	}
 
 	// Initialize CGP
-	gp := New(options)
+	gp := cgp.New(options)
 
 	// Population[0] is the parent, which is the most fit individual. We
 	// loop until we've found a perfect solution (fitness 0)
@@ -83,7 +84,7 @@ func TestSymbolicRegression(t *testing.T) {
 	// Try to approximate the function x**3 - 2x + 10
 
 	// First, we set up our parameters:
-	options := CGPOptions{
+	options := cgp.CGPOptions{
 		PopSize:      100,  // The population size. One parent plus four children.
 		NumGenes:     30,   // The maximum number of functions in the genome
 		MutationRate: 0.03, // The mutation rate
@@ -92,7 +93,7 @@ func TestSymbolicRegression(t *testing.T) {
 		MaxArity:     2,    // The maximum arity of the functions in the FunctionList
 	}
 
-	options.FunctionList = []CGPFunction{
+	options.FunctionList = []cgp.CGPFunction{
 		func(input []float64) float64 { return input[0] },            // Constant
 		func(input []float64) float64 { return input[1] },            // Pass through A
 		func(input []float64) float64 { return input[2] },            // Pass through B
@@ -128,7 +129,7 @@ func TestSymbolicRegression(t *testing.T) {
 		{3.14, 34.679144},
 	}
 
-	options.Evaluator = func(ind Individual) float64 {
+	options.Evaluator = func(ind cgp.Individual) float64 {
 		fitness := 0.0
 		for _, tc := range testCases {
 			input := []float64{tc.in}
@@ -139,7 +140,7 @@ func TestSymbolicRegression(t *testing.T) {
 	}
 
 	// Initialize CGP
-	gp := New(options)
+	gp := cgp.New(options)
 
 	// Make sure we're using all CPUs
 	runtime.GOMAXPROCS(runtime.NumCPU())
