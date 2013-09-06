@@ -9,7 +9,7 @@ import (
 
 // A Gene contains the index of a CGPFunction, a constant and connections to the
 // inputs for the function.
-type Gene struct {
+type gene struct {
 	Function    int
 	Constant    float64
 	Connections []int
@@ -17,7 +17,7 @@ type Gene struct {
 
 // Mutate replaces function, constant or connections of a Gene with a random
 // valid value
-func (g *Gene) Mutate(position int, options *CGPOptions) {
+func (g *gene) Mutate(position int, options *CGPOptions) {
 	toMutate := options.Rand.Intn(2 + len(g.Connections))
 
 	if toMutate == 0 {
@@ -37,7 +37,7 @@ func (g *Gene) Mutate(position int, options *CGPOptions) {
 // function genes and output genes and can hold the fitness of the evolved
 // program.
 type Individual struct {
-	Genes   []Gene      // The function genes
+	Genes   []gene      // The function genes
 	Outputs []int       // The output genes
 	Options *CGPOptions // A pointer to the CGPOptions. Necessary to retrieve e.g. the mutation rate.
 	Fitness float64     // The fitness of the individual
@@ -50,7 +50,7 @@ type Individual struct {
 func NewIndividual(options *CGPOptions) (ind Individual) {
 	ind.Options = options
 	ind.Fitness = math.Inf(1)
-	ind.Genes = make([]Gene, options.NumGenes)
+	ind.Genes = make([]gene, options.NumGenes)
 	ind.Outputs = make([]int, options.NumOutputs)
 
 	for i := range ind.Genes {
@@ -74,7 +74,7 @@ func (ind Individual) Mutate() (mutant Individual) {
 	// Copy the parent individual
 	mutant.Fitness = math.Inf(1)
 	mutant.Options = ind.Options
-	mutant.Genes = make([]Gene, ind.Options.NumGenes)
+	mutant.Genes = make([]gene, ind.Options.NumGenes)
 	mutant.Outputs = make([]int, ind.Options.NumOutputs)
 	copy(mutant.Genes, ind.Genes)
 	copy(mutant.Outputs, ind.Outputs)
@@ -163,7 +163,7 @@ func (ind *Individual) CacheID() string {
 	return ind.cacheID
 }
 
-// Run executes the evolved programs with the given input.
+// Run executes the evolved program with the given input.
 func (ind Individual) Run(input []float64) []float64 {
 	if len(input) != ind.Options.NumInputs {
 		panic("Individual.Run() was called with the wrong number of inputs")

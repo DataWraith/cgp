@@ -13,7 +13,7 @@ import (
 // a CGPFunction could implement binary AND or floating point multiplication.
 type CGPFunction func([]float64) float64
 
-// The EvalFunction takes one Individual and assigns it a fitness value.
+// The EvalFunction takes one Individual returns its fitness value.
 type EvalFunction func(Individual) float64
 
 // RndConstFunction takes a PRNG as input and outputs a random number that is
@@ -37,15 +37,15 @@ type CGPOptions struct {
 	Rand         *rand.Rand       // An instance of rand.Rand that is used throughout cgp to make runs repeatable
 }
 
-type cgp struct {
+type CGP struct {
 	Options        CGPOptions
 	Population     []Individual
-	NumEvaluations int
+	NumEvaluations int // The number of evaluations so far
 }
 
 // New takes CGPOptions and returns a new CGP object. It panics when a necessary
 // precondition is violated, e.g. when the number of genes is negative.
-func New(options CGPOptions) *cgp {
+func New(options CGPOptions) *CGP {
 
 	if options.PopSize < 2 {
 		panic("Population size must be at least 2.")
@@ -79,7 +79,7 @@ func New(options CGPOptions) *cgp {
 		options.Rand = rand.New(rand.NewSource(time.Now().UnixNano()))
 	}
 
-	result := &cgp{
+	result := &CGP{
 		Options:        options,
 		Population:     make([]Individual, 1, options.PopSize),
 		NumEvaluations: 0,
@@ -93,7 +93,7 @@ func New(options CGPOptions) *cgp {
 // RunGeneration creates offspring from the current parent via mutation,
 // evaluates the offspring using the CGP object's Evaluator and selects the new
 // parent for the following generation.
-func (cgp *cgp) RunGeneration() {
+func (cgp *CGP) RunGeneration() {
 	// Create offspring
 	cgp.Population = cgp.Population[0:1]
 	for i := 1; i < cgp.Options.PopSize; i++ {
