@@ -1,3 +1,4 @@
+// Package cgp implements Cartesian Genetic Programming in Go.
 package cgp
 
 import (
@@ -7,21 +8,33 @@ import (
 	"time"
 )
 
+// A CGPFunction is a function that is usable in a Genetic Program. It takes
+// zero or more parameters and outputs a single result. For example
+// a CGPFunction could implement binary AND or floating point multiplication.
 type CGPFunction func([]float64) float64
+
+// The EvalFunction takes one Individual and assigns it a fitness value.
 type EvalFunction func(Individual) float64
+
+// RndConstFunction takes a PRNG as input and outputs a random number that is
+// used as a constant in the evolved program. This allows you to set the range
+// and type (integers vs. floating point) of constants used during evolution.
+// For example, if you are evolving programs that create RGB images you might
+// constrain the RndConstFunction to return integer values between 0 and 255.
 type RndConstFunction func(rand *rand.Rand) float64
 
+// CGPOptions is a struct describing the options of a CGP run.
 type CGPOptions struct {
-	PopSize      int
-	NumGenes     int
-	MutationRate float64
-	NumInputs    int
-	NumOutputs   int
-	MaxArity     int
-	FunctionList []CGPFunction
-	RandConst    RndConstFunction
-	Evaluator    EvalFunction
-	Rand         *rand.Rand
+	PopSize      int              // Population Size
+	NumGenes     int              // Number of Genes
+	MutationRate float64          // Mutation Rate
+	NumInputs    int              // The number of Inputs
+	NumOutputs   int              // The number of Outputs
+	MaxArity     int              // The maximum Arity of the CGPFunctions in FunctionList
+	FunctionList []CGPFunction    // The functions used in evolution
+	RandConst    RndConstFunction // The function supplying constants
+	Evaluator    EvalFunction     // The evaluator that assigns a fitness to an individual
+	Rand         *rand.Rand       // An instance of rand.Rand that is used throughout cgp to make runs repeatable
 }
 
 type cgp struct {
@@ -30,6 +43,8 @@ type cgp struct {
 	NumEvaluations int
 }
 
+// New takes CGPOptions and returns a new CGP object. It panics when a necessary
+// precondition is violated, e.g. when the number of genes is negative.
 func New(options CGPOptions) *cgp {
 
 	if options.PopSize < 2 {
@@ -75,6 +90,9 @@ func New(options CGPOptions) *cgp {
 	return result
 }
 
+// RunGeneration creates offspring from the current parent via mutation,
+// evaluates the offspring using the CGP object's Evaluator and selects the new
+// parent for the following generation.
 func (cgp *cgp) RunGeneration() {
 	// Create offspring
 	cgp.Population = cgp.Population[0:1]

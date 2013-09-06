@@ -7,12 +7,16 @@ import (
 	"math"
 )
 
+// A Gene contains the index of a CGPFunction, a constant and connections to the
+// inputs for the function.
 type Gene struct {
 	Function    int
 	Constant    float64
 	Connections []int
 }
 
+// Mutate replaces function, constant or connections of a Gene with a random
+// valid value
 func (g *Gene) Mutate(position int, options *CGPOptions) {
 	toMutate := options.Rand.Intn(2 + len(g.Connections))
 
@@ -29,16 +33,20 @@ func (g *Gene) Mutate(position int, options *CGPOptions) {
 	g.Connections[toMutate-2] = options.Rand.Intn(position)
 }
 
+// An Individual represents the genetic code of an evolved program. It contains
+// function genes and output genes and can hold the fitness of the evolved
+// program.
 type Individual struct {
-	Genes   []Gene
-	Outputs []int
-	Options *CGPOptions
-	Fitness float64
+	Genes   []Gene      // The function genes
+	Outputs []int       // The output genes
+	Options *CGPOptions // A pointer to the CGPOptions. Necessary to retrieve e.g. the mutation rate.
+	Fitness float64     // The fitness of the individual
 
-	activeGenes []bool
-	cacheID     string
+	activeGenes []bool // Which genes are active (contribute to program output)
+	cacheID     string // Programs with the same CacheID will behave identically
 }
 
+// NewIndividual creates a random valid program with the options as specified.
 func NewIndividual(options *CGPOptions) (ind Individual) {
 	ind.Options = options
 	ind.Fitness = math.Inf(1)
@@ -61,6 +69,7 @@ func NewIndividual(options *CGPOptions) (ind Individual) {
 	return
 }
 
+// Mutate returns a mutated copy of the Individual.
 func (ind Individual) Mutate() (mutant Individual) {
 	// Copy the parent individual
 	mutant.Fitness = math.Inf(1)
@@ -91,6 +100,7 @@ func (ind Individual) Mutate() (mutant Individual) {
 	return
 }
 
+// Recursively marks genes as active
 func (ind *Individual) markActive(gene int) {
 	if ind.activeGenes[gene] {
 		return
@@ -153,6 +163,7 @@ func (ind *Individual) CacheID() string {
 	return ind.cacheID
 }
 
+// Run executes the evolved programs with the given input.
 func (ind Individual) Run(input []float64) []float64 {
 	if len(input) != ind.Options.NumInputs {
 		panic("Individual.Run() was called with the wrong number of inputs")
