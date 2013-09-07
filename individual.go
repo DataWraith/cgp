@@ -79,7 +79,8 @@ func (ind Individual) Mutate() (mutant Individual) {
 	copy(mutant.Genes, ind.Genes)
 	copy(mutant.Outputs, ind.Outputs)
 
-	numMutations := ind.Options.MutationRate * float64(ind.Options.NumGenes+ind.Options.NumOutputs)
+	numMutations := ind.Options.MutationRate *
+		float64((ind.Options.NumGenes*(2+ind.Options.MaxArity))+ind.Options.NumOutputs)
 	if numMutations < 1 {
 		numMutations = 1
 	}
