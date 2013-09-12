@@ -1,11 +1,8 @@
 package cgp_test
 
 import (
-	"fmt"
 	"github.com/DataWraith/cgp"
-	"math"
 	"math/rand"
-	"runtime"
 	"testing"
 )
 
@@ -78,79 +75,4 @@ func TestReverseInputs(t *testing.T) {
 	}
 
 	t.Log("CGP successfully evolved input reversal")
-}
-
-func TestSymbolicRegression(t *testing.T) {
-	// Try to approximate the function x**3 - 2x + 10
-
-	// First, we set up our parameters:
-	options := cgp.CGPOptions{
-		PopSize:      100,  // The population size. One parent plus four children.
-		NumGenes:     30,   // The maximum number of functions in the genome
-		MutationRate: 0.03, // The mutation rate
-		NumInputs:    1,    // The number of input values
-		NumOutputs:   1,    // The number of output values
-		MaxArity:     2,    // The maximum arity of the functions in the FunctionList
-	}
-
-	options.FunctionList = []cgp.CGPFunction{
-		func(input []float64) float64 { return input[0] },            // Constant
-		func(input []float64) float64 { return input[1] },            // Pass through A
-		func(input []float64) float64 { return input[2] },            // Pass through B
-		func(input []float64) float64 { return input[1] + input[2] }, // Addition
-		func(input []float64) float64 { return input[1] - input[2] }, // Subtraction
-		func(input []float64) float64 { return input[1] * input[2] }, // Multiplication
-
-		// Division
-		func(input []float64) float64 {
-			if input[2] == 0 {
-				return 0
-			}
-			return input[1] / input[2]
-		},
-	}
-
-	// Generate random integer constants between 0 and 100
-	options.RandConst = func(rand *rand.Rand) float64 {
-		return float64(rand.Intn(101))
-	}
-
-	// Prepare the testcases.
-	var testCases = []struct {
-		in  float64
-		out float64
-	}{
-		{0, 10},
-		{0.5, 9.125},
-		{1, 9},
-		{10, 990},
-		{-5, -105},
-		{17, 4889},
-		{3.14, 34.679144},
-	}
-
-	options.Evaluator = func(ind cgp.Individual) float64 {
-		fitness := 0.0
-		for _, tc := range testCases {
-			input := []float64{tc.in}
-			output := ind.Run(input)
-			fitness += math.Pow(tc.out-output[0], 2)
-		}
-		return fitness
-	}
-
-	// Initialize CGP
-	gp := cgp.New(options)
-
-	// Make sure we're using all CPUs
-	runtime.GOMAXPROCS(runtime.NumCPU())
-
-	// Population[0] is the parent, which is the most fit individual. We
-	// loop until we've found a perfect solution (fitness 0)
-	for gp.Population[0].Fitness > 0 {
-		gp.RunGeneration()
-		fmt.Println(gp.Population[0].Fitness)
-	}
-
-	t.Log("CGP successfully evolved x**3 - 2x + 10")
 }
