@@ -9,6 +9,7 @@ in the Go programming language.
 Here's an example of using CGP for symbolic regression. We are trying to
 approximate the function f(x) = x³ - 2x + 10.
 
+```go
     import "github.com/DataWraith/cgp"
     import "math"
     import "math/rand"
@@ -85,3 +86,4 @@ approximate the function f(x) = x³ - 2x + 10.
             gp.RunGeneration()
             fmt.Println(gp.Population[0].Fitness)
     }
+```
