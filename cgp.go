@@ -13,7 +13,7 @@ import (
 // a CGPFunction could implement binary AND or floating point multiplication.
 type CGPFunction func([]float64) float64
 
-// The EvalFunction takes one Individual returns its fitness value.
+// The EvalFunction takes one Individual and returns its fitness value.
 type EvalFunction func(Individual) float64
 
 // RndConstFunction takes a PRNG as input and outputs a random number that is
