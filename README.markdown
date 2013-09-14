@@ -10,6 +10,7 @@ Here's an example of using CGP for symbolic regression. We are trying to
 approximate the function f(x) = x³ - 2x + 10.
 
 ```go
+import "fmt"
 import "github.com/DataWraith/cgp"
 import "math"
 import "math/rand"
