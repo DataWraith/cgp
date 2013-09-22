@@ -4,6 +4,10 @@
 This is a library implementing [Cartesian Genetic Programming](http://www.cartesiangp.co.uk/)
 in the Go programming language.
 
+## Installation
+
+    go get github.com/DataWraith/cgp
+
 ## Usage
 
 Here's an example of using CGP for symbolic regression. We are trying to
