@@ -1,3 +1,4 @@
+**Status**: This project is abandoned. I'm keeping it online because it may still prove to be useful for someone, but I will not address Issues or merge Pull requests.
 
 # CGP for Go
 
